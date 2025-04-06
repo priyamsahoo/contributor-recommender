@@ -3,19 +3,20 @@
     "issue_number": 84922,
     "title": "Callbacks do not resolve temlpating for delegate_to ",
     "keywords": [
-      "callbacks",
-      "delegate_to",
       "Jinja templating",
+      "delegate_to",
       "ansible_host",
+      "NET1_IP",
       "VM1",
       "VM2",
-      "NET1_IP",
       "ansible.builtin.debug",
       "ansible core",
       "ansible.cfg",
-      "ansible",
-      "ansible version",
-      "bug report"
+      "ansible [core 2.15.12]",
+      "jinja version",
+      "libyaml",
+      "Red Hat",
+      "Bug Report"
     ],
     "labels": [
       "bug",
