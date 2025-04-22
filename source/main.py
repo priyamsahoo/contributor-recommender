@@ -1,6 +1,7 @@
 import os
 from dotenv import load_dotenv
 from github import list_github_issues
+from source.get_contributors_BM25 import find_contributors
 from utils import parse_github_url, save_issues_to_file
 from keyword_extraction import process_single_issue, load_issues
 
@@ -22,6 +23,19 @@ def main():
             issue_number = int(input("Enter the issue number you want to process: "))
             output_filename = f"../outputs/{repo}_issues_with_keywords.json"
             process_single_issue(issues, issue_number, output_filename)
+
+            print("\nFinding top 5 most relevant contributors…")
+            top_users = find_contributors(
+                owner,
+                repo,
+                token,
+                keywords_file=output_filename,
+                pr_count=500,
+                top_n=5
+            )
+            print("Top 5 contributors:")
+            for i, user in enumerate(top_users, start=1):
+                print(f"{i}. {user}")
         else:
             print("Keyword extraction skipped.")
     except Exception as e:
