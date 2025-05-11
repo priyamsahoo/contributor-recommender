@@ -8,6 +8,7 @@ from source.github import list_github_issues
 from source.get_contributors_BM25 import find_contributors
 from source.utils import filter_human_users, parse_full_repo_name, parse_github_url, save_issues_to_file
 from source.keyword_extraction import process_single_issue, load_issues
+from source.print_colors import bcolors
 
 def main():
 
@@ -34,15 +35,15 @@ def main():
 
         filename = f"{os.getcwd()}/outputs/{repo}_issues.json"
         save_issues_to_file(issues, filename)
-        print(f"Saved {len(issues)} issues to '{filename}'\n")
+        print(f"{bcolors.WARNING}Saved {len(issues)} issues to '{filename}'{bcolors.ENDC}\n")
 
         issues = load_issues(filename)
         output_filename = f"{os.getcwd()}/outputs/{repo}_issues_with_keywords.json"
         
-        print(f"Processing issue #{issue_number} from {owner}/{repo}...\n")
+        print(f"{bcolors.OKCYAN}Processing issue #{issue_number} from {owner}/{repo}...{bcolors.ENDC}\n")
         process_single_issue(issues, issue_number, output_filename)
 
-        print("Finding contributors...\n")
+        print(f"{bcolors.OKCYAN}Finding contributors...{bcolors.ENDC}\n")
 
         # find contributors based on PR
         user_list_1 = find_contributors(
@@ -55,7 +56,7 @@ def main():
         )
         top_users_based_on_prs = filter_human_users(user_list_1)
 
-        print("Top contributors based on who raised related PRs:")
+        print(f"{bcolors.OKBLUE}Top contributors based on who raised related PRs:{bcolors.ENDC}")
         for i, user in enumerate(top_users_based_on_prs, start=1):
             print(f"{i}. {user}")
 
@@ -69,7 +70,7 @@ def main():
             repo)
         top_users_based_on_files_changed = filter_human_users(user_list_2)
 
-        print("Top contributors based on who worked on related code:")
+        print(f"{bcolors.OKBLUE}Top contributors based on who worked on related code:{bcolors.ENDC}")
         for i, user in enumerate(top_users_based_on_files_changed, start=1):
             print(f"{i}. {user}")
 
@@ -77,15 +78,15 @@ def main():
 
         # rank contributors from both lists (via Reciprocal Rank Fusion)
         top_contributors = fuse_contributors(top_users_based_on_prs, top_users_based_on_files_changed)
-        print("Most likely users to contribute to this issue are:")
+        print(f"{bcolors.OKGREEN}{bcolors.BOLD}Most likely users to contribute to this issue are:{bcolors.ENDC}")
         for i, user in enumerate(top_contributors, start=1):
-            print(f"{i}. {user}")
+            print(f"{bcolors.OKGREEN}{i}. {user}")
 
 
         # else:
         #     print("Keyword extraction skipped.")
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"{bcolors.FAIL}Error: {e}{bcolors.ENDC}")
 
 if __name__ == "__main__":
     main()

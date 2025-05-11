@@ -4,6 +4,7 @@ import os
 from time import sleep
 from dotenv import load_dotenv
 from source.keyword_extraction_prompt import contruct_prompt
+from source.print_colors import bcolors
 from source.utils import extract_keywords_from_json_string
 
 # Load environment variables
@@ -65,7 +66,7 @@ def process_single_issue(issues, issue_number, output_path):
     print("Keywords:", result["keywords"])
     print("Labels:", result["labels"])
 
-    print(f"Results saved to {output_path}\n")
+    print(f"{bcolors.WARNING}Results saved to {output_path}{bcolors.ENDC}\n")
 
 # def process_issues(issues, output_path, delay=1):
 #     results = []
