@@ -9,13 +9,25 @@ def parse_github_url(repo_url):
         raise ValueError("Invalid GitHub URL format. Expected: https://github.com/owner/repo")
     return parts[0], parts[1]
 
+def parse_full_repo_name(full_repo_name: str):
+
+    FULL_REPO_NAME_PATTERN = re.compile(r'^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$')
+
+    try:
+        if not FULL_REPO_NAME_PATTERN.fullmatch(full_repo_name):
+            raise ValueError(
+                "Invalid format. Repo must match '<owner>/<repo>' "
+                "using letters, numbers, '_', '-' or '.'."
+            )
+        owner, repo = full_repo_name.split('/', 1)
+    except ValueError:
+        raise ValueError("Input must be in the format 'owner/repo'")
+    url = f"https://www.github.com/{owner}/{repo}"
+    return url, owner, repo
+
 def save_issues_to_file(issues, filename="issues.json"):
     with open(filename, 'w', encoding='utf-8') as f:
         json.dump(issues, f, indent=4)
-    print(f"Saved {len(issues)} issues to '{filename}'")
-
-
-import re, json
 
 def extract_keywords_from_json_string(text):
     pattern = r"```json\s*(\{.*?\})\s*```"

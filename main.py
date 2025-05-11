@@ -1,77 +1,89 @@
 import os
+import argparse
 from dotenv import load_dotenv
 
 from source.fuse_contributors import fuse_contributors
 from source.get_contributor_from_file_changes import find_contributors_from_file_data
 from source.github import list_github_issues
 from source.get_contributors_BM25 import find_contributors
-from source.utils import filter_human_users, parse_github_url, save_issues_to_file
+from source.utils import filter_human_users, parse_full_repo_name, parse_github_url, save_issues_to_file
 from source.keyword_extraction import process_single_issue, load_issues
 
 def main():
+
+    parser = argparse.ArgumentParser(
+        prog="git-recommend",
+        description="Fetch GitHub issues and recommend contributors that are most likely/capable to work on it"
+    )
+
+    parser.add_argument("full_repo_name", help="GitHub repository name with owner (e.g. owner/repo)")
+    parser.add_argument("issue_number", type=int, help="Issue number to process")
+    args = parser.parse_args()
+
     load_dotenv()
     token = os.getenv("GITHUB_TOKEN")
-    repo_url = input("Enter GitHub repo URL to fetch issues from: ")
+    # repo_url = input("Enter GitHub repo URL to fetch issues from: ")
+
+    full_repo_name = args.full_repo_name       # now comes from CLI
+    issue_number = args.issue_number  # now comes from CLI
 
     try:
-        owner, repo = parse_github_url(repo_url)
+        # owner, repo = parse_github_url(repo_url)
+        repo_url, owner, repo = parse_full_repo_name(full_repo_name)
         issues = list_github_issues(owner, repo, token=token)
 
         filename = f"{os.getcwd()}/outputs/{repo}_issues.json"
-
-        
         save_issues_to_file(issues, filename)
-        #keywords extraction
-        choice = input("Do you want to extract keywords from a specific issue now? (y/n): ").strip().lower()
+        print(f"Saved {len(issues)} issues to '{filename}'\n")
+
+        issues = load_issues(filename)
+        output_filename = f"{os.getcwd()}/outputs/{repo}_issues_with_keywords.json"
         
-        if choice == "y":
-            issues = load_issues(filename)
-            issue_number = int(input("Enter the issue number you want to process: "))
-            output_filename = f"{os.getcwd()}/outputs/{repo}_issues_with_keywords.json"
-            process_single_issue(issues, issue_number, output_filename)
+        print(f"Processing issue #{issue_number} from {owner}/{repo}...\n")
+        process_single_issue(issues, issue_number, output_filename)
 
-            print()
+        print("Finding contributors...\n")
 
-            # find contributors based on PR
-            user_list_1 = find_contributors(
-                owner,
-                repo,
-                token,
-                keywords_file=output_filename,
-                pr_count=500,
-                top_n=5
-            )
-            top_users_based_on_prs = filter_human_users(user_list_1)
+        # find contributors based on PR
+        user_list_1 = find_contributors(
+            owner,
+            repo,
+            token,
+            keywords_file=output_filename,
+            pr_count=500,
+            top_n=5
+        )
+        top_users_based_on_prs = filter_human_users(user_list_1)
 
-            print("Top contributors based on who raised related PRs:")
-            for i, user in enumerate(top_users_based_on_prs, start=1):
-                print(f"{i}. {user}")
+        print("Top contributors based on who raised related PRs:")
+        for i, user in enumerate(top_users_based_on_prs, start=1):
+            print(f"{i}. {user}")
 
-            print()
+        print()
 
-            # find contributors from related file changes
-            user_list_2 = find_contributors_from_file_data(
-                token,
-                output_filename,
-                owner,
-                repo)
-            top_users_based_on_files_changed = filter_human_users(user_list_2)
+        # find contributors from related file changes
+        user_list_2 = find_contributors_from_file_data(
+            token,
+            output_filename,
+            owner,
+            repo)
+        top_users_based_on_files_changed = filter_human_users(user_list_2)
 
-            print("Top contributors based on who worked on related code:")
-            for i, user in enumerate(top_users_based_on_files_changed, start=1):
-                print(f"{i}. {user}")
+        print("Top contributors based on who worked on related code:")
+        for i, user in enumerate(top_users_based_on_files_changed, start=1):
+            print(f"{i}. {user}")
 
-            print()
+        print()
 
-            # rank contributors from both lists (via Reciprocal Rank Fusion)
-            top_contributors = fuse_contributors(top_users_based_on_prs, top_users_based_on_files_changed)
-            print("Most likely users to contribute to this issue are:")
-            for i, user in enumerate(top_contributors, start=1):
-                print(f"{i}. {user}")
+        # rank contributors from both lists (via Reciprocal Rank Fusion)
+        top_contributors = fuse_contributors(top_users_based_on_prs, top_users_based_on_files_changed)
+        print("Most likely users to contribute to this issue are:")
+        for i, user in enumerate(top_contributors, start=1):
+            print(f"{i}. {user}")
 
 
-        else:
-            print("Keyword extraction skipped.")
+        # else:
+        #     print("Keyword extraction skipped.")
     except Exception as e:
         print(f"Error: {e}")
 

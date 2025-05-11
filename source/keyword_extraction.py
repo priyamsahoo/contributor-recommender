@@ -50,7 +50,7 @@ def process_single_issue(issues, issue_number, output_path):
         print(f"Issue #{issue_number} not found.")
         return
 
-    print(f"Processing issue #{issue_number} - {selected_issue['title']}")
+    # print(f"Processing issue #{issue_number} - {selected_issue['title']}")
 
     keywords, _ = extract_keywords(selected_issue)
 
@@ -62,7 +62,13 @@ def process_single_issue(issues, issue_number, output_path):
     }
 
     save_results(output_path, [result])
-    print(f"Results saved to {output_path}")
+
+    print("Issue Number:", result["issue_number"])
+    print("Title:", result["title"])
+    print("Keywords:", result["keywords"])
+    print("Labels:", result["labels"])
+
+    print(f"Results saved to {output_path}\n")
 
 # def process_issues(issues, output_path, delay=1):
 #     results = []
