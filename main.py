@@ -28,6 +28,10 @@ def main():
     full_repo_name = args.full_repo_name       # now comes from CLI
     issue_number = args.issue_number  # now comes from CLI
 
+    # create an 'outputs' directory to store full info
+    output_dir = os.path.join(os.getcwd(), "outputs")
+    os.makedirs(output_dir, exist_ok=True)
+
     try:
         # owner, repo = parse_github_url(repo_url)
         repo_url, owner, repo = parse_full_repo_name(full_repo_name)
