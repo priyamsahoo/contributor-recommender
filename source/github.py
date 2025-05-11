@@ -24,6 +24,7 @@ def list_github_issues(owner, repo, token=None, state='open'):
                 continue
             all_issues.append({
                 'number': issue['number'],
+                'state': issue['state'],
                 'title': issue['title'],
                 'body': issue.get('body', ''),
                 'created_at': issue['created_at'],

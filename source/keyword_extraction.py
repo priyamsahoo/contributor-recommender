@@ -46,12 +46,9 @@ def process_single_issue(issues, issue_number, output_path):
     """Process a single issue selected by user input"""
     selected_issue = next((issue for issue in issues if issue['number'] == issue_number), None)
     
-    if selected_issue is None:
-        print(f"Issue #{issue_number} not found.")
-        return
-
-    # print(f"Processing issue #{issue_number} - {selected_issue['title']}")
-
+    if selected_issue is None or selected_issue["state"] == "closed":
+        raise Exception(f"Issue #{issue_number} is either closed or does not exist.")
+    
     keywords, _ = extract_keywords(selected_issue)
 
     result = {
