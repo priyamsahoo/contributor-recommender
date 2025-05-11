@@ -1,9 +1,11 @@
 import os
 from dotenv import load_dotenv
 
+from source.fuse_contributors import fuse_contributors
+from source.get_contributor_from_file_changes import find_contributors_from_file_data
 from source.github import list_github_issues
 from source.get_contributors_BM25 import find_contributors
-from source.utils import parse_github_url, save_issues_to_file
+from source.utils import filter_human_users, parse_github_url, save_issues_to_file
 from source.keyword_extraction import process_single_issue, load_issues
 
 def main():
@@ -28,9 +30,10 @@ def main():
             output_filename = f"{os.getcwd()}/outputs/{repo}_issues_with_keywords.json"
             process_single_issue(issues, issue_number, output_filename)
 
+            print()
+
             # find contributors based on PR
-            print("\nFinding top 5 most relevant contributors…")
-            top_users = find_contributors(
+            user_list_1 = find_contributors(
                 owner,
                 repo,
                 token,
@@ -38,11 +41,35 @@ def main():
                 pr_count=500,
                 top_n=5
             )
-            print("Top 5 contributors:")
-            for i, user in enumerate(top_users, start=1):
+            top_users_based_on_prs = filter_human_users(user_list_1)
+
+            print("Top contributors based on who raised related PRs:")
+            for i, user in enumerate(top_users_based_on_prs, start=1):
                 print(f"{i}. {user}")
 
-            # find 
+            print()
+
+            # find contributors from related file changes
+            user_list_2 = find_contributors_from_file_data(
+                token,
+                output_filename,
+                owner,
+                repo)
+            top_users_based_on_files_changed = filter_human_users(user_list_2)
+
+            print("Top contributors based on who worked on related code:")
+            for i, user in enumerate(top_users_based_on_files_changed, start=1):
+                print(f"{i}. {user}")
+
+            print()
+
+            # rank contributors from both lists (via Reciprocal Rank Fusion)
+            top_contributors = fuse_contributors(top_users_based_on_prs, top_users_based_on_files_changed)
+            print("Most likely users to contribute to this issue are:")
+            for i, user in enumerate(top_contributors, start=1):
+                print(f"{i}. {user}")
+
+
         else:
             print("Keyword extraction skipped.")
     except Exception as e:
