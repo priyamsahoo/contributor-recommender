@@ -6,7 +6,7 @@ from source.fuse_contributors import fuse_contributors
 from source.get_contributor_from_file_changes import find_contributors_from_file_data
 from source.github import list_github_issues
 from source.get_contributors_BM25 import find_contributors
-from source.utils import filter_human_users, parse_full_repo_name, parse_github_url, save_issues_to_file
+from source.utils import create_link_in_print, filter_human_users, parse_full_repo_name, parse_github_url, save_issues_to_file
 from source.keyword_extraction import process_single_issue, load_issues
 from source.print_colors import bcolors
 
@@ -80,7 +80,8 @@ def main():
         top_contributors = fuse_contributors(top_users_based_on_prs, top_users_based_on_files_changed)
         print(f"{bcolors.OKGREEN}{bcolors.BOLD}Most likely users to contribute to this issue are:{bcolors.ENDC}")
         for i, user in enumerate(top_contributors, start=1):
-            print(f"{bcolors.OKGREEN}{i}. {user}")
+            # create a hyperlink to the users profile as well
+            print(f"{bcolors.OKGREEN}{i}. {create_link_in_print(f'https://www.github.com/{user}', user)}")
 
 
         # else:

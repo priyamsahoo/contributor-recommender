@@ -81,3 +81,13 @@ def filter_human_users(user_list, patterns=None):
     :return:           List[str] containing only likely human usernames
     """
     return [u for u in user_list if not is_bot_user(u, patterns)]
+
+def create_link_in_print(uri, label=None):
+    if label is None:
+        label = uri
+    parameters = ''
+
+    # OSC 8 ; params ; URI ST <name> OSC 8 ;; ST
+    escape_mask = '\033]8;{};{}\033\\{}\033]8;;\033\\'
+
+    return escape_mask.format(parameters, uri, label)
