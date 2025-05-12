@@ -15,5 +15,6 @@ setup(
         "google-generativeai",
         "python-dotenv",
         "rank_bm25"
+        "prettytable"
     ],
 )
