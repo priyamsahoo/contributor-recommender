@@ -82,7 +82,7 @@ def find_contributors_from_file_data(token, keywords_file, owner, repo):
     query = unique_keywords[0]
     # query = 'auto-completion'
 
-    print("keyword searching ->", query)
+    # print("keyword searching ->", query)
     result = search_project_code_file(token, query, owner, repo)
     # print(result.get("items", []))
     
