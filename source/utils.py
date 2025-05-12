@@ -1,6 +1,9 @@
 from urllib.parse import urlparse
 import json
 import re
+from prettytable import PrettyTable
+import textwrap
+
 
 def parse_github_url(repo_url):
     parsed = urlparse(repo_url)
@@ -35,7 +38,7 @@ def extract_keywords_from_json_string(text):
     if match:
         json_str = match.group(1)
         data = json.loads(json_str)
-        return data["keywords"]
+        return data["keywords"], data["summary"]
     return []
 
 
@@ -91,3 +94,42 @@ def create_link_in_print(uri, label=None):
     escape_mask = '\033]8;{};{}\033\\{}\033]8;;\033\\'
 
     return escape_mask.format(parameters, uri, label)
+
+def print_issue_pretty(issue, wrap_width=60):
+    """
+    issue: dict with keys
+      - issue_number (int)
+      - title (str)
+      - labels (list of str)
+      - keywords (list of str)
+      - summary (str)
+    wrap_width: max characters per line in the Value column
+    """
+    # 1. Prepare the table
+    table = PrettyTable()
+    table.field_names = ["Field", "Value"]
+    table.align["Field"] = "l"
+    table.align["Value"] = "l"
+    # Let PrettyTable wrap long text for us:
+    table.max_width["Value"] = wrap_width
+    table.header = False
+    table.border = False
+
+    # 2. Helper to wrap long strings
+    def wrap(text):
+        return "\n".join(textwrap.wrap(str(text), wrap_width))
+
+    # 3. Add rows
+    table.add_row(["Issue number", issue["issue_number"]])
+    table.add_row(["", ""])
+    table.add_row(["Title", wrap(issue["title"])])
+    table.add_row(["", ""])
+    table.add_row(["Labels", wrap(issue["labels"])])
+    table.add_row(["", ""])
+    table.add_row(["Keywords", wrap(issue["keywords"])])
+    table.add_row(["", ""])
+    table.add_row(["Summary", wrap(issue["summary"])])
+    table.add_row(["", ""])
+
+    # 4. Print
+    print(table)

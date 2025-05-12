@@ -5,7 +5,9 @@ from time import sleep
 from dotenv import load_dotenv
 from source.keyword_extraction_prompt import contruct_prompt
 from source.print_colors import bcolors
-from source.utils import extract_keywords_from_json_string
+from source.utils import extract_keywords_from_json_string, print_issue_pretty
+from prettytable import PrettyTable, TableStyle
+
 
 # Load environment variables
 load_dotenv()
@@ -34,10 +36,10 @@ def extract_keywords(issue, model="gemini-2.0-flash"):
         content = response.text.strip()
         # return response.choices[0].message['content'].strip().split(', ')
         if(content.startswith("```json")):
-            keywords = keywords = extract_keywords_from_json_string(content)
+            keywords, summary = extract_keywords_from_json_string(content)
         else:
             keywords = [k.strip() for k in content.split(',')]
-        return keywords, content
+        return keywords, summary, content
 
     except Exception as e:
         print(f"Error processing issue {issue['number']}: {str(e)}")
@@ -50,21 +52,44 @@ def process_single_issue(issues, issue_number, output_path):
     if selected_issue is None or selected_issue["state"] == "closed":
         raise Exception(f"Issue #{issue_number} is either closed or does not exist.")
     
-    keywords, _ = extract_keywords(selected_issue)
+    keywords, summary, _ = extract_keywords(selected_issue)
 
     result = {
         "issue_number": selected_issue["number"],
         "title": selected_issue["title"],
         "keywords": keywords,
-        "labels": selected_issue.get("labels", [])
+        "labels": selected_issue.get("labels", []),
+        "summary": summary
     }
 
     save_results(output_path, [result])
 
-    print("Issue Number:", result["issue_number"])
-    print("Title:", result["title"])
-    print("Keywords:", result["keywords"])
-    print("Labels:", result["labels"])
+    # table = PrettyTable()
+    # table.header = False
+    # table.set_style(TableStyle.MARKDOWN)
+    # table.max_table_width = 200
+    # table.use_header_width = False
+
+    # issue_details = [
+    #     ["Issue number", result["issue_number"]],
+    #     ["Title:", result["title"]],
+    #     ["Labels:", result["labels"]],
+    #     ["Keywords:", result["keywords"]],
+    #     ["Summary:", result["summary"]]
+    # ]
+
+    # table.title = "Issue details and summary"
+    # table.add_rows(issue_details)
+    # print(table)
+
+    print_issue_pretty(result, wrap_width=100)
+
+
+    # print("Issue Number:", result["issue_number"])
+    # print("Title:", result["title"])
+    # print("Labels:", result["labels"])
+    # print("Keywords:", result["keywords"])
+    # print("Summary:", result["summary"])
 
     print(f"{bcolors.WARNING}Results saved to {output_path}{bcolors.ENDC}\n")
 
