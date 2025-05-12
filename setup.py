@@ -14,7 +14,7 @@ setup(
         # any dependencies, e.g. "requests>=2.0"
         "google-generativeai",
         "python-dotenv",
-        "rank_bm25"
+        "rank_bm25",
         "prettytable"
     ],
 )
