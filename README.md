@@ -8,15 +8,9 @@ The project is a command-line utility `command: git-recommend` that automates is
 
 1. **Token creation**  
    1. **GitHub API token**: follow GitHub’s guide to create a Personal Access Token with at least `repo` and `read:org` scopes:  
-      https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token  
+      [GitHub API](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token)
    2. **Google AI Studio key**: sign in to Google AI Studio and generate an API key:  
-      https://ai.google.com/studio  
-
-2. **Export tokens to your environment**  
-   ```bash
-   export GITHUB_TOKEN="<your_github_token>"
-   export GOOGLE_API_KEY="<your_google_ai_key>"
-    ```
+      [Google AI Studio API Key](https://aistudio.google.com/app/apikey)
 
 3. **Clone the repository**
 
@@ -30,7 +24,7 @@ The project is a command-line utility `command: git-recommend` that automates is
    cd contributor-recommender
    ```
 
-5. **(Optional) Create and activate a virtual environment**
+5. **[Optional] Create and activate a virtual environment**
 
    ```bash
    python3 -m venv venv
